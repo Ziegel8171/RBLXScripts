@@ -1,10 +1,45 @@
 --!strict
 --[[
     Roblox UI Library
-    Created as a single, self-contained loadstring script.
+
+    -- When you add the textbox
+UI:addTextBox("MyTextBox")
+
+-- To get the value later in your code:
+local myTextBox = UI:get("MyTextBox")
+local textValue = myTextBox.Text
+print("The value of the textbox is: " .. textValue)
+
+
+
+
+-- When you add the dropdown
+UI:addDropdown("MyDropdown", {"Option A", "Option B"})
+
+-- To get the selected value later in your code:
+local myDropdown = UI:get("MyDropdown")
+local selectedOption = myDropdown.Text
+print("The selected option is: " .. selectedOption)
+
+
+
+
+UI:addButton("Toggle My Script", function(isEnabled)
+    if isEnabled then
+        print("Script is now active!")
+        -- Put the code you want to run when the button is enabled here.
+    else
+        print("Script is now inactive!")
+        -- Put the code you want to run when the button is disabled here.
+    end
+end)
+
     Usage:
     -- Load the library
-    local UI = loadstring(game:HttpGet("YOUR_RAW_GITHUB_LINK_HERE"))()
+    local UI = loadstring(
+    game:HttpGet(
+        'https://raw.githubusercontent.com/Ziegel8171/RBLXScripts/refs/heads/main/UI%20lib%20test'
+    )
 
     -- Add sections and elements
     UI:setMainLabel("My Custom UI")
@@ -320,8 +355,8 @@ function UI:addDropdown(menuName: string, options: {string})
     
     local optionsFrame = Instance.new("ScrollingFrame")
     optionsFrame.Name = "OptionsFrame"
-    optionsFrame.Size = UDim2.new(dropdownBackground.Size.Scale.X, dropdownBackground.Size.Offset.X, 0, 150)
-    optionsFrame.Position = UDim2.new(dropdownBackground.Position.Scale.X, dropdownBackground.Position.Offset.X, dropdownBackground.Position.Scale.Y, dropdownBackground.Position.Offset.Y + dropdownBackground.Size.Offset.Y)
+    optionsFrame.Size = UDim2.new(0.95, -20, 0, 150)
+    optionsFrame.Position = UDim2.new(0.5, -20, 0, dropdownButton.Size.Offset.Y + dropdownButton.Position.Offset.Y)
     optionsFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
     optionsFrame.BackgroundTransparency = 0.5
     optionsFrame.BorderSizePixel = 0
@@ -329,8 +364,8 @@ function UI:addDropdown(menuName: string, options: {string})
     optionsFrame.ScrollBarImageColor3 = Color3.new(0.2, 0.2, 0.2)
     optionsFrame.ScrollBarThickness = 6
     optionsFrame.Visible = false
-    optionsFrame.Parent = mainFrame
-    
+    optionsFrame.Parent = dropdownBackground
+
     local listLayout = Instance.new("UIListLayout")
     listLayout.Name = "ListLayout"
     listLayout.FillDirection = Enum.FillDirection.Vertical
@@ -367,7 +402,6 @@ function UI:addDropdown(menuName: string, options: {string})
     
     dropdownButton.MouseButton1Click:Connect(function()
         optionsFrame.Visible = not optionsFrame.Visible
-        optionsFrame.ZIndex = 10
     end)
     
     elements[menuName] = dropdownButton
