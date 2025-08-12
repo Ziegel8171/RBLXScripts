@@ -320,8 +320,8 @@ function UI:addDropdown(menuName: string, options: {string})
     
     local optionsFrame = Instance.new("ScrollingFrame")
     optionsFrame.Name = "OptionsFrame"
-    optionsFrame.Size = UDim2.new(0.95, -20, 0, 150)
-    optionsFrame.Position = UDim2.new(0.5, -20, 0, dropdownButton.Size.Offset.Y + dropdownButton.Position.Offset.Y)
+    optionsFrame.Size = UDim2.new(dropdownBackground.Size.Scale.X, dropdownBackground.Size.Offset.X, 0, 150)
+    optionsFrame.Position = UDim2.new(dropdownBackground.Position.Scale.X, dropdownBackground.Position.Offset.X, dropdownBackground.Position.Scale.Y, dropdownBackground.Position.Offset.Y + dropdownBackground.Size.Offset.Y)
     optionsFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
     optionsFrame.BackgroundTransparency = 0.5
     optionsFrame.BorderSizePixel = 0
@@ -329,8 +329,8 @@ function UI:addDropdown(menuName: string, options: {string})
     optionsFrame.ScrollBarImageColor3 = Color3.new(0.2, 0.2, 0.2)
     optionsFrame.ScrollBarThickness = 6
     optionsFrame.Visible = false
-    optionsFrame.Parent = dropdownBackground
-
+    optionsFrame.Parent = mainFrame
+    
     local listLayout = Instance.new("UIListLayout")
     listLayout.Name = "ListLayout"
     listLayout.FillDirection = Enum.FillDirection.Vertical
@@ -367,6 +367,7 @@ function UI:addDropdown(menuName: string, options: {string})
     
     dropdownButton.MouseButton1Click:Connect(function()
         optionsFrame.Visible = not optionsFrame.Visible
+        optionsFrame.ZIndex = 10
     end)
     
     elements[menuName] = dropdownButton
