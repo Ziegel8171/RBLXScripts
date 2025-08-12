@@ -28,7 +28,7 @@ local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 local UI = {}
 
-local currentYOffset = 90
+local currentYOffset = 60
 local currentXOffset = 0
 local columnWidth = 350
 local sectionHeight = 0
@@ -91,7 +91,7 @@ function UI:setMainLabel(newText: string)
 end
 
 local function resizeUI()
-    local newSizeY = 90 + totalUIHeight
+    local newSizeY = currentYOffset + (currentYOffset == 60 and 0 or 20)
     local newSizeX = 10 + totalUIWidth
     
     local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -106,13 +106,18 @@ end
 
 function UI:addSection(title: string)
     sectionCount += 1
-    if sectionCount > 2 then
-        currentXOffset = 360
-        currentYOffset = 90
-        totalUIWidth += columnWidth + 10
-        sectionHeight = 0
+    if sectionCount > 1 then
+        if currentYOffset + 50 > 450 and sectionCount % 2 == 0 then
+            currentXOffset += columnWidth + 10
+            currentYOffset = 60
+            totalUIWidth += columnWidth + 10
+            sectionHeight = 0
+        else
+             currentYOffset += 10
+             sectionHeight += 10
+        end
     end
-
+    
     local sectionTitle = Instance.new("TextLabel")
     sectionTitle.Name = "SectionTitle"
     sectionTitle.Size = UDim2.new(0, columnWidth - 20, 0, 20)
@@ -316,7 +321,6 @@ function UI:addDropdown(menuName: string, options: {string})
     local optionsFrame = Instance.new("ScrollingFrame")
     optionsFrame.Name = "OptionsFrame"
     optionsFrame.Size = UDim2.new(1, 0, 0, 150)
-    optionsFrame.Position = UDim2.new(0, 0, 1, 5)
     optionsFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
     optionsFrame.BackgroundTransparency = 0.5
     optionsFrame.BorderSizePixel = 0
@@ -324,7 +328,7 @@ function UI:addDropdown(menuName: string, options: {string})
     optionsFrame.ScrollBarImageColor3 = Color3.new(0.2, 0.2, 0.2)
     optionsFrame.ScrollBarThickness = 6
     optionsFrame.Visible = false
-    optionsFrame.Parent = dropdownButton
+    optionsFrame.ZIndex = 10 -- Ensure it's on top of other elements
 
     local listLayout = Instance.new("UIListLayout")
     listLayout.Name = "ListLayout"
@@ -361,7 +365,14 @@ function UI:addDropdown(menuName: string, options: {string})
     end
     
     dropdownButton.MouseButton1Click:Connect(function()
-        optionsFrame.Visible = not optionsFrame.Visible
+        optionsFrame.Parent = optionsFrame.Parent == screenGui and dropdownButton or screenGui
+        if optionsFrame.Parent == screenGui then
+            optionsFrame.Position = dropdownButton.AbsolutePosition + Vector2.new(0, dropdownButton.AbsoluteSize.Y)
+            optionsFrame.Visible = true
+            optionsFrame.ZIndex = 10
+        else
+            optionsFrame.Visible = false
+        end
     end)
     
     elements[menuName] = dropdownButton
