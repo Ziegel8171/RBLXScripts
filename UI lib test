@@ -7,6 +7,7 @@
     local UI = loadstring(game:HttpGet("YOUR_RAW_GITHUB_LINK_HERE"))()
 
     -- Add sections and elements
+    UI:setMainLabel("My Custom UI")
     UI:addSection("My First Section")
     UI:addButton("MyButton", function()
         print("MyButton clicked!")
@@ -84,6 +85,10 @@ headerLabel.TextSize = 20
 headerLabel.TextColor3 = Color3.new(1, 1, 1)
 headerLabel.TextXAlignment = Enum.TextXAlignment.Left
 headerLabel.Parent = headerFrame
+
+function UI:setMainLabel(newText: string)
+    headerLabel.Text = newText
+end
 
 local function resizeUI()
     local newSizeY = 90 + totalUIHeight
