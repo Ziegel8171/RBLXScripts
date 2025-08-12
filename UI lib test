@@ -1,0 +1,380 @@
+--!strict
+--[[
+    Roblox UI Library
+    Created as a single, self-contained loadstring script.
+    Usage:
+    -- Load the library
+    local UI = loadstring(game:HttpGet("YOUR_RAW_GITHUB_LINK_HERE"))()
+
+    -- Add sections and elements
+    UI:addSection("My First Section")
+    UI:addButton("MyButton", function()
+        print("MyButton clicked!")
+    end)
+    UI:addTextBox("MyTextBox")
+
+    UI:addSection("My Second Section")
+    UI:addDropdown("MyDropdown", {"Option 1", "Option 2"})
+]]
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local GuiService = game:GetService("GuiService")
+
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+
+local UI = {}
+
+local currentYOffset = 90
+local currentXOffset = 0
+local columnWidth = 350
+local sectionHeight = 0
+local totalUIHeight = 0
+local totalUIWidth = 350
+local sectionCount = 0
+
+local elements = {}
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CustomUILibrary"
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, columnWidth, 0, 450)
+mainFrame.Position = UDim2.new(0.5, -175, 0.5, -225)
+mainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+mainFrame.BackgroundTransparency = 0.2
+mainFrame.BorderSizePixel = 1
+mainFrame.BorderColor3 = Color3.new(0, 0, 0)
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+mainFrame.Visible = true
+
+local function createRoundedCorner(parent, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius)
+    corner.Parent = parent
+end
+
+createRoundedCorner(mainFrame, 8)
+
+local headerFrame = Instance.new("Frame")
+headerFrame.Name = "Header"
+headerFrame.Size = UDim2.new(1, 0, 0, 50)
+headerFrame.Position = UDim2.new(0, 0, 0, 0)
+headerFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+headerFrame.BackgroundTransparency = 0.5
+headerFrame.BorderSizePixel = 0
+headerFrame.Parent = mainFrame
+createRoundedCorner(headerFrame, 8)
+
+local headerLabel = Instance.new("TextLabel")
+headerLabel.Name = "MainLabel"
+headerLabel.Size = UDim2.new(1, -20, 1, 0)
+headerLabel.Position = UDim2.new(0, 10, 0, 0)
+headerLabel.BackgroundColor3 = headerFrame.BackgroundColor3
+headerLabel.BackgroundTransparency = 1
+headerLabel.Text = "MAIN LABEL"
+headerLabel.Font = Enum.Font.SourceSansBold
+headerLabel.TextSize = 20
+headerLabel.TextColor3 = Color3.new(1, 1, 1)
+headerLabel.TextXAlignment = Enum.TextXAlignment.Left
+headerLabel.Parent = headerFrame
+
+local function resizeUI()
+    local newSizeY = 90 + totalUIHeight
+    local newSizeX = 10 + totalUIWidth
+    
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local goal = {
+        Size = UDim2.new(0, newSizeX, 0, newSizeY),
+        Position = UDim2.new(0.5, -newSizeX / 2, 0.5, -newSizeY / 2)
+    }
+    
+    local tween = TweenService:Create(mainFrame, tweenInfo, goal)
+    tween:Play()
+end
+
+function UI:addSection(title: string)
+    sectionCount += 1
+    if sectionCount > 2 then
+        currentXOffset = 360
+        currentYOffset = 90
+        totalUIWidth += columnWidth + 10
+        sectionHeight = 0
+    end
+
+    local sectionTitle = Instance.new("TextLabel")
+    sectionTitle.Name = "SectionTitle"
+    sectionTitle.Size = UDim2.new(0, columnWidth - 20, 0, 20)
+    sectionTitle.Position = UDim2.new(0, 10 + currentXOffset, 0, currentYOffset)
+    sectionTitle.BackgroundColor3 = Color3.new(0, 0, 0)
+    sectionTitle.BackgroundTransparency = 1
+    sectionTitle.Text = title
+    sectionTitle.Font = Enum.Font.SourceSansBold
+    sectionTitle.TextSize = 16
+    sectionTitle.TextColor3 = Color3.fromHex("#566a71")
+    sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+    sectionTitle.Parent = mainFrame
+    
+    currentYOffset += 30
+    sectionHeight += 30
+    totalUIHeight = math.max(totalUIHeight, sectionHeight)
+    resizeUI()
+end
+
+function UI:addButton(buttonName: string, onClickFunction)
+    local rowFrame = Instance.new("Frame")
+    rowFrame.Name = buttonName .. "Row"
+    rowFrame.Size = UDim2.new(0, columnWidth, 0, 50)
+    rowFrame.Position = UDim2.new(0, currentXOffset, 0, currentYOffset)
+    rowFrame.BackgroundColor3 = mainFrame.BackgroundColor3
+    rowFrame.BackgroundTransparency = 1
+    rowFrame.BorderSizePixel = 0
+    rowFrame.Parent = mainFrame
+    
+    local buttonBackground = Instance.new("Frame")
+    buttonBackground.Name = "ButtonBackground"
+    buttonBackground.Size = UDim2.new(1, -20, 0.8, 0)
+    buttonBackground.Position = UDim2.new(0, 10, 0.1, 0)
+    buttonBackground.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    buttonBackground.BackgroundTransparency = 0.2
+    buttonBackground.BorderSizePixel = 0
+    buttonBackground.Parent = rowFrame
+    createRoundedCorner(buttonBackground, 8)
+
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(0.8, -20, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    label.BackgroundTransparency = 1
+    label.Text = buttonName
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 18
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = buttonBackground
+
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Name = "Toggle"
+    toggleButton.Size = UDim2.new(0.25, 0, 0.7, 0)
+    toggleButton.Position = UDim2.new(0.75, -5, 0.15, 0)
+    toggleButton.Text = "Disabled"
+    toggleButton.Font = Enum.Font.SourceSansBold
+    toggleButton.TextSize = 16
+    toggleButton.TextColor3 = Color3.new(1, 1, 1)
+    toggleButton.Parent = buttonBackground
+    createRoundedCorner(toggleButton, 5)
+
+    local isEnabled = false
+    local function updateButtonState()
+        if isEnabled then
+            toggleButton.BackgroundColor3 = Color3.fromHex("#06c46c")
+            toggleButton.Text = "Enabled"
+        else
+            toggleButton.BackgroundColor3 = Color3.fromHSV(0.99, 0.69, 0.816)
+            toggleButton.Text = "Disabled"
+        end
+    end
+    updateButtonState()
+
+    toggleButton.MouseButton1Click:Connect(function()
+        isEnabled = not isEnabled
+        updateButtonState()
+        if onClickFunction then
+            onClickFunction(isEnabled)
+        end
+    end)
+    
+    currentYOffset += 50
+    sectionHeight += 50
+    totalUIHeight = math.max(totalUIHeight, sectionHeight)
+    resizeUI()
+end
+
+function UI:addTextBox(boxName: string)
+    local rowFrame = Instance.new("Frame")
+    rowFrame.Name = boxName .. "Row"
+    rowFrame.Size = UDim2.new(0, columnWidth, 0, 50)
+    rowFrame.Position = UDim2.new(0, currentXOffset, 0, currentYOffset)
+    rowFrame.BackgroundColor3 = mainFrame.BackgroundColor3
+    rowFrame.BackgroundTransparency = 1
+    rowFrame.BorderSizePixel = 0
+    rowFrame.Parent = mainFrame
+    
+    local boxBackground = Instance.new("Frame")
+    boxBackground.Name = "BoxBackground"
+    boxBackground.Size = UDim2.new(1, -20, 0.8, 0)
+    boxBackground.Position = UDim2.new(0, 10, 0.1, 0)
+    boxBackground.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    boxBackground.BackgroundTransparency = 0.2
+    boxBackground.BorderSizePixel = 0
+    boxBackground.Parent = rowFrame
+    createRoundedCorner(boxBackground, 8)
+    
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(0.3, 0, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    label.BackgroundTransparency = 1
+    label.Text = boxName
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 18
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = boxBackground
+    
+    local textBox = Instance.new("TextBox")
+    textBox.Name = "TextBox"
+    textBox.Size = UDim2.new(0.6, -20, 0.7, 0)
+    textBox.Position = UDim2.new(0.4, 0, 0.15, 0)
+    textBox.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    textBox.BackgroundTransparency = 0.5
+    textBox.BorderSizePixel = 0
+    textBox.Text = ""
+    textBox.Font = Enum.Font.SourceSans
+    textBox.TextSize = 16
+    textBox.TextColor3 = Color3.new(1, 1, 1)
+    textBox.TextXAlignment = Enum.TextXAlignment.Left
+    textBox.PlaceholderText = "TEXT-VALUE"
+    textBox.Parent = boxBackground
+    createRoundedCorner(textBox, 5)
+
+    elements[boxName] = textBox
+    currentYOffset += 50
+    sectionHeight += 50
+    totalUIHeight = math.max(totalUIHeight, sectionHeight)
+    resizeUI()
+end
+
+function UI:addDropdown(menuName: string, options: {string})
+    local rowFrame = Instance.new("Frame")
+    rowFrame.Name = menuName .. "Row"
+    rowFrame.Size = UDim2.new(0, columnWidth, 0, 50)
+    rowFrame.Position = UDim2.new(0, currentXOffset, 0, currentYOffset)
+    rowFrame.BackgroundColor3 = mainFrame.BackgroundColor3
+    rowFrame.BackgroundTransparency = 1
+    rowFrame.BorderSizePixel = 0
+    rowFrame.Parent = mainFrame
+
+    local dropdownBackground = Instance.new("Frame")
+    dropdownBackground.Name = "DropdownBackground"
+    dropdownBackground.Size = UDim2.new(1, -20, 0.8, 0)
+    dropdownBackground.Position = UDim2.new(0, 10, 0.1, 0)
+    dropdownBackground.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    dropdownBackground.BackgroundTransparency = 0.2
+    dropdownBackground.BorderSizePixel = 0
+    dropdownBackground.Parent = rowFrame
+    createRoundedCorner(dropdownBackground, 8)
+
+    local label = Instance.new("TextLabel")
+    label.Name = "Label"
+    label.Size = UDim2.new(0.4, 0, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+    label.BackgroundTransparency = 1
+    label.Text = menuName
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = 18
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = dropdownBackground
+
+    local dropdownButton = Instance.new("TextButton")
+    dropdownButton.Name = "DropdownButton"
+    dropdownButton.Size = UDim2.new(0.5, -20, 0.7, 0)
+    dropdownButton.Position = UDim2.new(0.5, 0, 0.15, 0)
+    dropdownButton.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    dropdownButton.BackgroundTransparency = 0.5
+    dropdownButton.Text = "Select"
+    dropdownButton.Font = Enum.Font.SourceSans
+    dropdownButton.TextSize = 16
+    dropdownButton.TextColor3 = Color3.new(1, 1, 1)
+    dropdownButton.TextXAlignment = Enum.TextXAlignment.Left
+    dropdownButton.Parent = dropdownBackground
+    createRoundedCorner(dropdownButton, 5)
+
+    local dropdownIcon = Instance.new("ImageLabel")
+    dropdownIcon.Name = "Icon"
+    dropdownIcon.Size = UDim2.new(0, 16, 0, 16)
+    dropdownIcon.Position = UDim2.new(1, -21, 0.5, -8)
+    dropdownIcon.Image = "rbxassetid://135899981"
+    dropdownIcon.BackgroundTransparency = 1
+    dropdownIcon.Parent = dropdownButton
+    
+    local optionsFrame = Instance.new("ScrollingFrame")
+    optionsFrame.Name = "OptionsFrame"
+    optionsFrame.Size = UDim2.new(1, 0, 0, 150)
+    optionsFrame.Position = UDim2.new(0, 0, 1, 5)
+    optionsFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    optionsFrame.BackgroundTransparency = 0.5
+    optionsFrame.BorderSizePixel = 0
+    optionsFrame.CanvasSize = UDim2.new(0, 0, 0, #options * 25)
+    optionsFrame.ScrollBarImageColor3 = Color3.new(0.2, 0.2, 0.2)
+    optionsFrame.ScrollBarThickness = 6
+    optionsFrame.Visible = false
+    optionsFrame.Parent = dropdownButton
+
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.Name = "ListLayout"
+    listLayout.FillDirection = Enum.FillDirection.Vertical
+    listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+    listLayout.Padding = UDim.new(0, 2)
+    listLayout.Parent = optionsFrame
+
+    for i, option in ipairs(options) do
+        local optionButton = Instance.new("TextButton")
+        optionButton.Name = "OptionButton"
+        optionButton.Size = UDim2.new(1, 0, 0, 25)
+        optionButton.Text = option
+        optionButton.Font = Enum.Font.SourceSans
+        optionButton.TextSize = 14
+        optionButton.TextColor3 = Color3.new(1, 1, 1)
+        optionButton.TextXAlignment = Enum.TextXAlignment.Left
+        optionButton.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+        optionButton.BorderSizePixel = 0
+        optionButton.Parent = optionsFrame
+
+        optionButton.MouseEnter:Connect(function()
+            optionButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+        end)
+        optionButton.MouseLeave:Connect(function()
+            optionButton.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+        end)
+
+        optionButton.MouseButton1Click:Connect(function()
+            dropdownButton.Text = option
+            optionsFrame.Visible = false
+        end)
+    end
+    
+    dropdownButton.MouseButton1Click:Connect(function()
+        optionsFrame.Visible = not optionsFrame.Visible
+    end)
+    
+    elements[menuName] = dropdownButton
+    currentYOffset += 50
+    sectionHeight += 50
+    totalUIHeight = math.max(totalUIHeight, sectionHeight)
+    resizeUI()
+end
+
+function UI:get(elementName: string)
+    return elements[elementName]
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        mainFrame.Visible = not mainFrame.Visible
+    end
+end)
+
+return UI
