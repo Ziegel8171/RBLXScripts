@@ -328,7 +328,7 @@ function UI:addDropdown(menuName: string, options: {string})
     optionsFrame.ScrollBarImageColor3 = Color3.new(0.2, 0.2, 0.2)
     optionsFrame.ScrollBarThickness = 6
     optionsFrame.Visible = false
-    optionsFrame.ZIndex = 10 -- Ensure it's on top of other elements
+    optionsFrame.Parent = screenGui -- Temporarily parented to ScreenGui to avoid clipping
 
     local listLayout = Instance.new("UIListLayout")
     listLayout.Name = "ListLayout"
@@ -364,10 +364,13 @@ function UI:addDropdown(menuName: string, options: {string})
         end)
     end
     
+    -- Correctly position the options frame relative to the dropdown button using UDim2
     dropdownButton.MouseButton1Click:Connect(function()
-        optionsFrame.Parent = optionsFrame.Parent == screenGui and dropdownButton or screenGui
-        if optionsFrame.Parent == screenGui then
-            optionsFrame.Position = dropdownButton.AbsolutePosition + Vector2.new(0, dropdownButton.AbsoluteSize.Y)
+        if not optionsFrame.Visible then
+            local mainFramePosition = mainFrame.AbsolutePosition
+            local dropdownButtonPosition = dropdownButton.AbsolutePosition
+            
+            optionsFrame.Position = UDim2.new(0, dropdownButtonPosition.X, 0, dropdownButtonPosition.Y + dropdownButton.AbsoluteSize.Y)
             optionsFrame.Visible = true
             optionsFrame.ZIndex = 10
         else
