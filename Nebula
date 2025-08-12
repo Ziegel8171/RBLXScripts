@@ -112,10 +112,10 @@ end
 
 -- Dropdown helper
 local function buildDropdown(theme, parent, width, labelText, options, default, onChanged)
-	local row = mk("Frame", { Name = labelText.."Row", BackgroundTransparency = 1, Size = UDim2.new(1,0,0,42) })
+	local row = mk("Frame", { Name = labelText.."Row", BackgroundTransparency = 1, Size = UDim2.new(1,0,0,42), ClipsDescendants = false, ZIndex = 1 })
 	row.Parent = parent
 
-	local bg = mk("Frame", { BackgroundColor3 = theme.surface, Size = UDim2.new(1,0,1,0) }, {
+	local bg = mk("Frame", { BackgroundColor3 = theme.surface, Size = UDim2.new(1,0,1,0), ClipsDescendants = false, ZIndex = 2 }, {
 		mkCorner(theme.radius), mkStroke(1, theme.muted, 0.25), mkPadding(10)
 	})
 	bg.Parent = row
@@ -133,6 +133,7 @@ local function buildDropdown(theme, parent, width, labelText, options, default, 
 
 	local button = mk("TextButton", {
 		BackgroundColor3 = theme.surface2,
+		ZIndex = 3,
 		AutoButtonColor = false,
 		Text = tostring(default or "Select"),
 		Font = Enum.Font.Gotham,
@@ -143,18 +144,18 @@ local function buildDropdown(theme, parent, width, labelText, options, default, 
 	}, { mkCorner(theme.radius-2) })
 	button.Parent = bg
 
-	local list = mk("Frame", { Visible = false, BackgroundColor3 = theme.surface2, Size = UDim2.new(1,-20,0, math.min(6,#options)*26 ), Position = UDim2.new(0,10,1,6) }, {
+	local list = mk("Frame", { Visible = false, BackgroundColor3 = theme.surface2, Size = UDim2.new(1,-20,0, math.min(6,#options)*26 ), Position = UDim2.new(0,10,1,6), ClipsDescendants = false, ZIndex = 50 }, {
 		mkCorner(theme.radius-2), mkStroke(1, theme.muted, 0.25)
 	})
 	list.Parent = bg
 
-	local scroller = mk("ScrollingFrame", { Active = true, CanvasSize = UDim2.new(0,0,0,#options*26), BackgroundTransparency = 1, BorderSizePixel = 0, Size = UDim2.new(1,0,1,0), ScrollBarThickness = 4 })
+	local scroller = mk("ScrollingFrame", { Active = true, CanvasSize = UDim2.new(0,0,0,#options*26), BackgroundTransparency = 1, BorderSizePixel = 0, Size = UDim2.new(1,0,1,0), ScrollBarThickness = 4, ZIndex = 51 })
 	scroller.Parent = list
 	mk("UIListLayout", { Padding = UDim.new(0,4), FillDirection = Enum.FillDirection.Vertical, SortOrder = Enum.SortOrder.LayoutOrder }).Parent = scroller
 
 	local current = default
 	for _,opt in ipairs(options) do
-		local item = mk("TextButton", { Text = tostring(opt), AutoButtonColor = false, BackgroundColor3 = theme.surface, TextColor3 = theme.text, Font = Enum.Font.Gotham, TextSize = 14, Size = UDim2.new(1,-8,0,24) }, { mkCorner(theme.radius-4) })
+		local item = mk("TextButton", { Text = tostring(opt), AutoButtonColor = false, BackgroundColor3 = theme.surface, TextColor3 = theme.text, Font = Enum.Font.Gotham, TextSize = 14, Size = UDim2.new(1,-8,0,24), ZIndex = 52 }, { mkCorner(theme.radius-4) })
 		item.Parent = scroller
 		item.MouseEnter:Connect(function() tween(item, TweenInfo.new(0.12), {BackgroundColor3 = theme.surface2}) end)
 		item.MouseLeave:Connect(function() tween(item, TweenInfo.new(0.12), {BackgroundColor3 = theme.surface}) end)
@@ -336,7 +337,7 @@ local NebulaUI = {}
 function NebulaUI.new(title)
 	local theme = table.clone(ThemeDefaults)
 
-	local screen = mk("ScreenGui", { Name = "NebulaUI", ResetOnSpawn = false, IgnoreGuiInset = true })
+	local screen = mk("ScreenGui", { Name = "NebulaUI", ResetOnSpawn = false, IgnoreGuiInset = true, ZIndexBehavior = Enum.ZIndexBehavior.Global })
 
 	local root = mk("Frame", { BackgroundColor3 = theme.bg, Size = UDim2.new(0, 560, 0, 420), Position = UDim2.new(0.5,-280, 0.5,-210), Active = true }, {
 		mkCorner(theme.radius+2), mkStroke(1.2, theme.surface2, 0.2)
@@ -382,7 +383,7 @@ function NebulaUI.new(title)
 	sidebar.Parent = body
 	mk("UIListLayout", { Padding = UDim.new(0,8), FillDirection = Enum.FillDirection.Vertical, SortOrder = Enum.SortOrder.LayoutOrder }).Parent = sidebar
 
-	local content = mk("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1,-170,1,0), Position = UDim2.new(0,160,0,0) })
+	local content = mk("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1,-200,1,0), Position = UDim2.new(0,180,0,0) })
 	content.Parent = body
 
 	local tabs = {}
